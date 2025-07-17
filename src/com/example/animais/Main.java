@@ -71,8 +71,7 @@ public class Main {
         System.out.print("Escolha uma opção: ");
     }
 
-    // --- MÓDULO DE GESTÃO DE ADOTANTES ---
-
+    // --- MÓDULO DE GESTÃO DE ADOTANTES (JÁ IMPLEMENTADO) ---
     private static void menuGestaoAdotantes() {
         boolean voltando = false;
         while (!voltando) {
@@ -203,9 +202,7 @@ public class Main {
             return;
         }
 
-        // Inverte o status atual
         adotanteParaAlterar.setAptoParaAdocao(!adotanteParaAlterar.isAptoParaAdocao());
-
         System.out.println("Status do adotante " + adotanteParaAlterar.getNome() +
                 " alterado para: " + (adotanteParaAlterar.isAptoParaAdocao() ? "Apto" : "Inapto"));
     }
@@ -230,14 +227,170 @@ public class Main {
         }
     }
 
-
-    // --- OUTROS MÓDULOS (PLACEHOLDERS) ---
+    // --- MÓDULO DE GESTÃO DE ANIMAIS (NOVA IMPLEMENTAÇÃO) ---
 
     private static void menuGestaoAnimais() {
-        System.out.println("\n--- Módulo de Gestão de Animais (Em desenvolvimento) ---");
-        System.out.println("Total de animais no abrigo: " + animais.size());
-        animais.forEach(System.out::println);
+        boolean voltando = false;
+        while (!voltando) {
+            System.out.println("\n--- Módulo de Gestão de Animais ---");
+            System.out.println("[1] Adicionar Cachorro");
+            System.out.println("[2] Adicionar Gato");
+            System.out.println("[3] Remover Animal");
+            System.out.println("[4] Desabilitar/Habilitar Animal para Adoção");
+            System.out.println("[5] Listar Todos os Animais");
+            System.out.println("[6] Voltar ao Menu Principal");
+            System.out.print("Escolha uma opção: ");
+
+            try {
+                int opcao = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (opcao) {
+                    case 1:
+                        adicionarCachorro();
+                        break;
+                    case 2:
+                        adicionarGato();
+                        break;
+                    case 3:
+                        removerAnimal();
+                        break;
+                    case 4:
+                        alterarStatusAnimal();
+                        break;
+                    case 5:
+                        listarTodosAnimais();
+                        break;
+                    case 6:
+                        voltando = true;
+                        break;
+                    default:
+                        System.out.println("Opção inválida.");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Erro: Entrada inválida. Por favor, insira um número.");
+                scanner.nextLine();
+            }
+            if (!voltando) pressioneEnterParaContinuar();
+        }
     }
+
+    private static void adicionarCachorro() {
+        System.out.println("\n--- Adicionar Novo Cachorro ---");
+        System.out.print("ID (identificador único, ex: c003): ");
+        String id = scanner.nextLine();
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+        System.out.print("Idade: ");
+        int idade = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Condição de Saúde: ");
+        String saude = scanner.nextLine();
+        System.out.print("Temperamento: ");
+        String temperamento = scanner.nextLine();
+        System.out.print("Porte (Pequeno, Médio, Grande): ");
+        String porte = scanner.nextLine();
+        System.out.print("Necessita de passeio diário? (s/n): ");
+        boolean necessitaPasseio = scanner.nextLine().equalsIgnoreCase("s");
+
+        animais.add(new Cao(id, nome, idade, saude, temperamento, "Disponível para adoção", porte, necessitaPasseio));
+        System.out.println("Cachorro adicionado com sucesso!");
+    }
+
+    private static void adicionarGato() {
+        System.out.println("\n--- Adicionar Novo Gato ---");
+        System.out.print("ID (identificador único, ex: g002): ");
+        String id = scanner.nextLine();
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+        System.out.print("Idade: ");
+        int idade = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Condição de Saúde: ");
+        String saude = scanner.nextLine();
+        System.out.print("Temperamento: ");
+        String temperamento = scanner.nextLine();
+        System.out.print("Convive bem com outros gatos? (s/n): ");
+        boolean conviveComGatos = scanner.nextLine().equalsIgnoreCase("s");
+
+        animais.add(new Gato(id, nome, idade, saude, temperamento, "Disponível para adoção", conviveComGatos));
+        System.out.println("Gato adicionado com sucesso!");
+    }
+
+    private static void removerAnimal() {
+        System.out.println("\n--- Remover Animal ---");
+        listarAnimaisSimples();
+        if (animais.isEmpty()) return;
+
+        System.out.print("Digite o ID do animal que deseja remover: ");
+        String id = scanner.nextLine();
+
+        boolean removido = animais.removeIf(animal -> animal.getId().equalsIgnoreCase(id));
+
+        if (removido) {
+            System.out.println("Animal removido com sucesso!");
+        } else {
+            System.out.println("Animal com ID '" + id + "' não encontrado.");
+        }
+    }
+
+    private static void alterarStatusAnimal() {
+        System.out.println("\n--- Desabilitar/Habilitar Animal ---");
+        listarAnimaisSimples();
+        if (animais.isEmpty()) return;
+
+        System.out.print("Digite o ID do animal para alterar o status: ");
+        String id = scanner.nextLine();
+
+        Animal animalParaAlterar = null;
+        for (Animal animal : animais) {
+            if (animal.getId().equalsIgnoreCase(id)) {
+                animalParaAlterar = animal;
+                break;
+            }
+        }
+
+        if (animalParaAlterar == null) {
+            System.out.println("Animal não encontrado.");
+            return;
+        }
+
+        if (animalParaAlterar.getStatus().equalsIgnoreCase("Adotado")) {
+            System.out.println("Não é possível alterar o status de um animal já adotado.");
+            return;
+        }
+
+        if (animalParaAlterar.getStatus().equalsIgnoreCase("Disponível para adoção")) {
+            animalParaAlterar.setStatus("Inapto para adoção");
+            System.out.println("Status do animal " + animalParaAlterar.getNome() + " alterado para: Inapto para adoção");
+        } else {
+            animalParaAlterar.setStatus("Disponível para adoção");
+            System.out.println("Status do animal " + animalParaAlterar.getNome() + " alterado para: Disponível para adoção");
+        }
+    }
+
+    private static void listarTodosAnimais() {
+        System.out.println("\n--- Relatório de Todos os Animais ---");
+        if (animais.isEmpty()) {
+            System.out.println("Nenhum animal cadastrado no abrigo.");
+            return;
+        }
+        animais.forEach(animal -> System.out.println(animal.gerarRelatorio()));
+    }
+
+    private static void listarAnimaisSimples() {
+        if (animais.isEmpty()) {
+            System.out.println("Nenhum animal cadastrado no abrigo.");
+            return;
+        }
+        System.out.println("Animais cadastrados:");
+        for (Animal animal : animais) {
+            System.out.println(" - Espécie: " + animal.getEspecie() + ", ID: " + animal.getId() + ", Nome: " + animal.getNome() + ", Status: " + animal.getStatus());
+        }
+    }
+
+    // --- OUTROS MÓDULOS ---
 
     private static void menuGestaoAdocoes() {
         System.out.println("\n--- Módulo de Gestão de Adoções (Em desenvolvimento) ---");
