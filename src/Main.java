@@ -5,7 +5,6 @@ import com.example.animais.gestao.Adotante;
 import com.example.animais.model.Animal;
 import com.example.animais.model.Cao;
 import com.example.animais.model.Gato;
-1
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
