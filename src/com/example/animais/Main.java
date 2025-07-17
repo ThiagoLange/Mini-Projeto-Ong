@@ -5,6 +5,7 @@ import com.example.animais.gestao.Adotante;
 import com.example.animais.model.Animal;
 import com.example.animais.model.Cao;
 import com.example.animais.model.Gato;
+
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -16,24 +17,19 @@ import java.util.Scanner;
  */
 public class Main {
 
-    // Scanner para ler a entrada do usuário em toda a aplicação
     private static final Scanner scanner = new Scanner(System.in);
-
-    // Listas para armazenar os dados em memória (simulando um banco de dados)
     private static final List<Adotante> adotantes = new ArrayList<>();
     private static final List<Animal> animais = new ArrayList<>();
     private static final List<Adocao> adocoes = new ArrayList<>();
 
     public static void main(String[] args) {
-        // Inicializa a aplicação com alguns dados para teste
         carregarDadosIniciais();
-
         boolean executando = true;
         while (executando) {
             exibirMenuPrincipal();
             try {
                 int opcao = scanner.nextInt();
-                scanner.nextLine(); // Consome a nova linha deixada pelo nextInt()
+                scanner.nextLine();
 
                 switch (opcao) {
                     case 1:
@@ -51,20 +47,18 @@ public class Main {
                         break;
                     default:
                         System.out.println("Opção inválida. Por favor, tente novamente.");
+                        pressioneEnterParaContinuar();
                         break;
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Erro: Entrada inválida. Por favor, insira um número.");
-                scanner.nextLine(); // Limpa o buffer do scanner para evitar um loop infinito
+                scanner.nextLine();
+                pressioneEnterParaContinuar();
             }
-            pressioneEnterParaContinuar();
         }
         scanner.close();
     }
 
-    /**
-     * Exibe o menu principal da aplicação.
-     */
     private static void exibirMenuPrincipal() {
         System.out.println("\n===== SISTEMA DE GESTÃO DE ADOÇÕES =====");
         System.out.println("Data e Hora: " + java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(java.time.LocalDateTime.now()));
@@ -77,53 +71,189 @@ public class Main {
         System.out.print("Escolha uma opção: ");
     }
 
-    /**
-     * Placeholder para o menu de gestão de adotantes.
-     */
+    // --- MÓDULO DE GESTÃO DE ADOTANTES ---
+
     private static void menuGestaoAdotantes() {
-        System.out.println("\n--- Módulo de Gestão de Adotantes ---");
-        // Futuramente, aqui entrarão as opções: Cadastrar, Listar, Atualizar, Excluir Adotante
-        System.out.println("Total de adotantes cadastrados: " + adotantes.size());
-        adotantes.forEach(System.out::println);
+        boolean voltando = false;
+        while (!voltando) {
+            System.out.println("\n--- Módulo de Gestão de Adotantes ---");
+            System.out.println("[1] Adicionar Perfil Adotante");
+            System.out.println("[2] Editar Perfil Adotante");
+            System.out.println("[3] Desabilitar/Habilitar Adotante");
+            System.out.println("[4] Listar Todos os Adotantes");
+            System.out.println("[5] Voltar ao Menu Principal");
+            System.out.print("Escolha uma opção: ");
+
+            try {
+                int opcao = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (opcao) {
+                    case 1:
+                        adicionarAdotante();
+                        break;
+                    case 2:
+                        editarAdotante();
+                        break;
+                    case 3:
+                        alterarStatusAdotante();
+                        break;
+                    case 4:
+                        listarTodosAdotantes();
+                        break;
+                    case 5:
+                        voltando = true;
+                        break;
+                    default:
+                        System.out.println("Opção inválida.");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Erro: Entrada inválida. Por favor, insira um número.");
+                scanner.nextLine();
+            }
+            if (!voltando) pressioneEnterParaContinuar();
+        }
     }
 
-    /**
-     * Placeholder para o menu de gestão de animais.
-     */
+    private static void adicionarAdotante() {
+        System.out.println("\n--- Adicionar Novo Adotante ---");
+        System.out.print("Nome completo: ");
+        String nome = scanner.nextLine();
+        System.out.print("CPF (xxx.xxx.xxx-xx): ");
+        String cpf = scanner.nextLine();
+        System.out.print("Endereço: ");
+        String endereco = scanner.nextLine();
+        System.out.print("Telefone: ");
+        String telefone = scanner.nextLine();
+        System.out.print("Preferências (ex: 'cães dóceis', 'gatos independentes'): ");
+        String preferencias = scanner.nextLine();
+
+        adotantes.add(new Adotante(nome, cpf, endereco, telefone, preferencias));
+        System.out.println("Adotante adicionado com sucesso!");
+    }
+
+    private static void editarAdotante() {
+        System.out.println("\n--- Editar Perfil de Adotante ---");
+        listarAdotantesSimples();
+        if (adotantes.isEmpty()) return;
+
+        System.out.print("Digite o CPF do adotante que deseja editar: ");
+        String cpf = scanner.nextLine();
+
+        Adotante adotanteParaEditar = null;
+        for (Adotante ad : adotantes) {
+            if (ad.getCpf().equals(cpf)) {
+                adotanteParaEditar = ad;
+                break;
+            }
+        }
+
+        if (adotanteParaEditar == null) {
+            System.out.println("Adotante não encontrado.");
+            return;
+        }
+
+        System.out.println("O que você deseja editar?");
+        System.out.println("[1] Endereço");
+        System.out.println("[2] Telefone");
+        System.out.println("[3] Preferências");
+        System.out.print("Escolha uma opção: ");
+        int opcao = scanner.nextInt();
+        scanner.nextLine();
+
+        switch (opcao) {
+            case 1:
+                System.out.print("Novo endereço: ");
+                adotanteParaEditar.setEndereco(scanner.nextLine());
+                break;
+            case 2:
+                System.out.print("Novo telefone: ");
+                adotanteParaEditar.setTelefone(scanner.nextLine());
+                break;
+            case 3:
+                System.out.print("Novas preferências: ");
+                adotanteParaEditar.setPreferencias(scanner.nextLine());
+                break;
+            default:
+                System.out.println("Opção inválida.");
+                return;
+        }
+        System.out.println("Perfil do adotante atualizado com sucesso!");
+    }
+
+    private static void alterarStatusAdotante() {
+        System.out.println("\n--- Desabilitar/Habilitar Adotante ---");
+        listarAdotantesSimples();
+        if (adotantes.isEmpty()) return;
+
+        System.out.print("Digite o CPF do adotante para alterar o status: ");
+        String cpf = scanner.nextLine();
+
+        Adotante adotanteParaAlterar = null;
+        for (Adotante ad : adotantes) {
+            if (ad.getCpf().equals(cpf)) {
+                adotanteParaAlterar = ad;
+                break;
+            }
+        }
+
+        if (adotanteParaAlterar == null) {
+            System.out.println("Adotante não encontrado.");
+            return;
+        }
+
+        // Inverte o status atual
+        adotanteParaAlterar.setAptoParaAdocao(!adotanteParaAlterar.isAptoParaAdocao());
+
+        System.out.println("Status do adotante " + adotanteParaAlterar.getNome() +
+                " alterado para: " + (adotanteParaAlterar.isAptoParaAdocao() ? "Apto" : "Inapto"));
+    }
+
+    private static void listarTodosAdotantes() {
+        System.out.println("\n--- Relatório de Todos os Adotantes ---");
+        if (adotantes.isEmpty()) {
+            System.out.println("Nenhum adotante cadastrado.");
+            return;
+        }
+        adotantes.forEach(adotante -> System.out.println(adotante.gerarRelatorio()));
+    }
+
+    private static void listarAdotantesSimples() {
+        if (adotantes.isEmpty()) {
+            System.out.println("Nenhum adotante cadastrado.");
+            return;
+        }
+        System.out.println("Adotantes cadastrados:");
+        for (Adotante ad : adotantes) {
+            System.out.println(" - Nome: " + ad.getNome() + ", CPF: " + ad.getCpf() + ", Status: " + (ad.isAptoParaAdocao() ? "Apto" : "Inapto"));
+        }
+    }
+
+
+    // --- OUTROS MÓDULOS (PLACEHOLDERS) ---
+
     private static void menuGestaoAnimais() {
-        System.out.println("\n--- Módulo de Gestão de Animais ---");
-        // Futuramente, aqui entrarão as opções: Cadastrar, Listar, Atualizar, Excluir Animal
+        System.out.println("\n--- Módulo de Gestão de Animais (Em desenvolvimento) ---");
         System.out.println("Total de animais no abrigo: " + animais.size());
         animais.forEach(System.out::println);
     }
 
-    /**
-     * Placeholder para o menu de gestão de adoções.
-     */
     private static void menuGestaoAdocoes() {
-        System.out.println("\n--- Módulo de Gestão de Adoções ---");
-        // Futuramente, aqui entrarão as opções: Registrar Nova Adoção, Listar Adoções
+        System.out.println("\n--- Módulo de Gestão de Adoções (Em desenvolvimento) ---");
         System.out.println("Total de adoções realizadas: " + adocoes.size());
         adocoes.forEach(System.out::println);
     }
 
-    /**
-     * Pausa a execução e aguarda o usuário pressionar Enter.
-     */
     private static void pressioneEnterParaContinuar() {
-        System.out.println("\nPressione Enter para voltar ao menu...");
+        System.out.println("\nPressione Enter para continuar...");
         scanner.nextLine();
     }
 
-    /**
-     * Carrega dados iniciais nas listas para facilitar testes e demonstrações.
-     */
     private static void carregarDadosIniciais() {
-        // Adotantes
         adotantes.add(new Adotante("Ana Silva", "123.456.789-00", "Rua das Flores, 123, Joinville", "(47) 99999-8888", "Prefere cães dóceis"));
         adotantes.add(new Adotante("João Santos", "987.654.321-00", "Avenida Brasil, 456, Joinville", "(47) 98888-7777", "Busca um gato independente"));
 
-        // Animais
         animais.add(new Cao("c001", "Rex", 5, "Saudável", "Dócil", "Disponível para adoção", "Médio", true));
         animais.add(new Gato("g001", "Misty", 2, "Saudável", "Calmo", "Disponível para adoção", true));
         animais.add(new Cao("c002", "Bolinha", 1, "Saudável", "Brincalhão", "Disponível para adoção", "Pequeno", true));
