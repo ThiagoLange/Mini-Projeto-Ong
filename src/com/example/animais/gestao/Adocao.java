@@ -1,6 +1,7 @@
 package com.example.animais.gestao;
 
 import com.example.animais.model.Animal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -9,23 +10,18 @@ import java.util.UUID;
  */
 public class Adocao {
 
-    private final String id; // ID único para o registro de adoção
+    private final String id;
     private Adotante adotante;
     private Animal animalAdotado;
     private Date data;
     private boolean termoAssinado;
 
-    public Adocao(Adotante adotante, Animal animalAdotado, Date data, boolean termoAssinado) {
+    public Adocao(Adotante adotante, Animal animalAdotado) {
         this.id = UUID.randomUUID().toString(); // Gera um ID único
         this.adotante = adotante;
         this.animalAdotado = animalAdotado;
-        this.data = data;
-        this.termoAssinado = termoAssinado;
-
-        // Boa prática: ao registrar uma adoção, atualizar o status do animal
-        if (termoAssinado) {
-            this.animalAdotado.setStatus("Adotado");
-        }
+        this.data = new Date(); // Define a data de registro da adoção
+        this.termoAssinado = false; // Adoção começa como pendente
     }
 
     // --- Getters e Setters ---
@@ -62,18 +58,25 @@ public class Adocao {
         return termoAssinado;
     }
 
-    public void setTermoAssinado(boolean termoAssinado) {
-        this.termoAssinado = termoAssinado;
+    // Método para formalizar a adoção
+    /**
+     * Finaliza o processo de adoção, assinando o termo e
+     * atualizando o status do animal para "Adotado".
+     */
+    public void realizarAdoção() {
+        this.termoAssinado = true;
+        this.animalAdotado.setStatus("Adotado");
     }
 
     // --- Método toString ---
 
     @Override
     public String toString() {
-        return "Adocao{" +
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return "Adocao {" +
                 "id='" + id + '\'' +
-                ", data=" + data +
-                ", termoAssinado=" + termoAssinado +
+                ", data=" + sdf.format(data) +
+                ", Status do Termo=" + (termoAssinado ? "Assinado (Realizada)" : "Pendente") +
                 "\n  --> Adotante: " + adotante.getNome() + " (CPF: " + adotante.getCpf() + ")" +
                 "\n  --> Animal: " + animalAdotado.getNome() + " (ID: " + animalAdotado.getId() + ")" +
                 '}';
